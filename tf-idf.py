@@ -38,9 +38,13 @@ for i, paper in enumerate(data):
     else:
         no_abstract.append(i)
 
+print("len of no_abstract:",len(no_abstract))
+
 abstract_len = sorted(abstract_len.items(), key=lambda x:x[1])
 
 defect_abstract_idx = [ i for i,n in abstract_len if n < 100 ] + no_abstract
+print("len of defect_abstract_idx:",len(defect_abstract_idx))
+
 for i in sorted(defect_abstract_idx, reverse=True):
     del data[i]
 
@@ -53,7 +57,7 @@ X = vectorizer.fit_transform(abstract)
 print(X.shape)
 print(vectorizer.vocabulary_) # bog of word
 print(X)
-print(len(vectorizer.get_feature_names()))
+print(len(vectorizer.get_feature_names_out()))
 print(vectorizer.idf_)
 
 for i, paper in enumerate(data):
@@ -62,6 +66,6 @@ for i, paper in enumerate(data):
 
 p = abstract[293]
 response = vectorizer.transform([p])
-p_tdfidf = [(col, vectorizer.get_feature_names()[col], response[0, col]) for col in response.nonzero()[1]] 
+p_tdfidf = [(col, vectorizer.get_feature_names_out()[col], response[0, col]) for col in response.nonzero()[1]] 
 p_tdfidf.sort(key=lambda x: x[2], reverse=True)
 print(*p_tdfidf[:20], sep='\n')
