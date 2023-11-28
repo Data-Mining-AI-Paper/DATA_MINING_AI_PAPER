@@ -29,3 +29,6 @@ def filter_non_abstract(data):
 
 def remove_url(text):
     return re.sub(r'https?://\S+', '', text)
+
+def remove_otr(text):
+    return re.sub(r'[^a-zA-Z]', ' ', text)
