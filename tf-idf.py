@@ -33,6 +33,7 @@ abstract = [paper.abstract for paper in data]
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 vectorizer = TfidfVectorizer()
+abstract = list(map(remove_url, abstract))
 X = vectorizer.fit_transform(abstract)
 # vectorizer.get_feature_names_out()
 print(X.shape)
