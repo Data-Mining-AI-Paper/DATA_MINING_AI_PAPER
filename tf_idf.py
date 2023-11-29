@@ -1,8 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from tool import *
-from preprocess import  preprocess
-
 class MyTfidfVectorizer(TfidfVectorizer):
     def get_important_words(self, X, k=20, threshold=0.15):
         feature_names = self.get_feature_names_out()
@@ -15,6 +12,9 @@ class MyTfidfVectorizer(TfidfVectorizer):
         return result
 
 if __name__ == "__main__":
+    from tool import *
+    from preprocess import  preprocess
+
     data = get_data("./ACL_PAPERS.json")
     data = preprocess(data[:100])
     abstracts = [paper.abstract for paper in data]

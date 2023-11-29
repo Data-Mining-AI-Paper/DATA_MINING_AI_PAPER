@@ -1,6 +1,5 @@
-from collections import Counter
 import json
-from nltk.corpus import wordnet
+from collections import Counter
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
