@@ -19,6 +19,8 @@ from pyclustering.samples.definitions import FCPS_SAMPLES
 from pyclustering.cluster import cluster_visualizer
 from pyclustering.cluster.cure import cure
 
+from wordcloud import WordCloud
+
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import string
@@ -77,7 +79,7 @@ for abstract in tqdm(abstracts):
     # 중요도 순으로 정렬하여 상위 단어 저장
     word_scores.sort(key=lambda x: x[1], reverse=True)
     threshold = 0.2  # 임계치 설정
-    important_words = [(word, score) for word, score in word_scores if score > threshold]
+    important_words = [[word, score] for word, score in word_scores if score > threshold]
     
     # 중요한 단어들을 리스트에 추가
     important_words_list.append(important_words)
@@ -169,6 +171,20 @@ plt.show()
 # plt.show()
 
 
+# 워드 클라우드
+tmp_dict = dict()
+for sub in important_words_list:
+    for word, score in sub:
+        tmp_dict[word] = score
+
+print(tmp_dict)
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(tmp_dict)
+
+# 워드 클라우드 시각화
+plt.figure(figsize=(10, 8))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.show()
 
 
 
