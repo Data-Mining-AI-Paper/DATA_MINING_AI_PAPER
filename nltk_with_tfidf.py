@@ -4,6 +4,8 @@ import json
 import re
 from tokenizers import Tokenizer
 import lemmatization
+import multiprocessing
+from multiprocessing import Pool
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans, SpectralClustering
@@ -57,8 +59,8 @@ print('-' * 20)
 
 test_dict = defaultdict(int)
 
-thesis_num = 100
-#thesis_num=len(a_dict))
+#thesis_num = 100
+thesis_num=len(a_dict)
 lemmatized_data=[a_dict[i]['abstract'] for i in range(thesis_num)]
 parse_abstracts = lemmatization.preprocess(lemmatized_data) 
 parse_years = [a_dict[i]['year'] for i in range(thesis_num)]
@@ -130,17 +132,43 @@ tfidf_matrix = tfidf.fit_transform([' '.join([word[0] for word in words]) for wo
 svd = TruncatedSVD(n_components=2, random_state=42)
 transformed = svd.fit_transform(tfidf_matrix)
 
-# Standardize the data (important for K-means)
-scaler = StandardScaler(with_mean=False) # Set with_mean to False for sparse matrices
-tfidf_matrix_standardized = scaler.fit_transform(tfidf_matrix)
-
 # K-means 클러스터링 (pyclustering의 kmeans 사용)
 print('--- start K-means clustering ---')
+#initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), num_clusters).initialize()
+#kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
+#kmeans_instance.process()
+#kmeans_clusters = kmeans_instance.get_clusters()
+
+max_clusters=15
+
+def calculate_distortion(k):
+    initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), k).initialize()
+    kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
+    kmeans_instance.process()
+    return kmeans_instance.get_total_wce()
+
+# Use multiprocessing to calculate distortions in parallel
+with Pool(multiprocessing.cpu_count()) as pool:
+    distortions = pool.map(calculate_distortion, range(1, max_clusters + 1))
+
+# Plot the elbow graph
+plt.plot(range(1, max_clusters + 1), distortions, marker='o')
+plt.xlabel('Number of clusters (k)')
+plt.ylabel('Distortion')
+plt.title('Elbow Method for Optimal k')
+plt.savefig("Elbow Method.png")
+plt.close()
+
+# Find the optimal k based on the elbow point
+num_clusters = np.argmin(distortions) + 1
+
+# Perform k-means clustering with the optimal k
 initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), num_clusters).initialize()
 kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
 kmeans_instance.process()
 kmeans_clusters = kmeans_instance.get_clusters()
 
+print(f"The optimal number of clusters (k) is: {num_clusters}")
 
 # CURE 클러스터링
 #print('--- start CURE clustering ---')
