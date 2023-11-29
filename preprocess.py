@@ -80,3 +80,9 @@ if __name__ == "__main__":
     data = get_data("./ACL_PAPERS.json")
     data = preprocess(data[:100])
     print(data[0])
+
+    import pickle
+    data = get_data("./ACL_PAPERS.json")
+    data = preprocess(data)
+    with open("preprocessed_ACL_PAPERS.pickle","wb") as f:
+        pickle.dump(data, f)
