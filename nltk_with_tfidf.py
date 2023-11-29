@@ -53,14 +53,26 @@ print('-' * 20)
     # line = line.strip()
     # split the line into words
 
-abstracts = [a_dict[i]['abstract'] for i in range(100)]
+
+test_dict = defaultdict(int)
+
+thesis_num = 100
+parse_abstracts = [a_dict[i]['abstract'] for i in range(thesis_num)]
+parse_years = [a_dict[i]['year'] for i in range(thesis_num)]
+abstract_year_list = [[parse_abstracts[i], parse_years[i]] for i in range(thesis_num)]
+
+years_tfidf_dict = defaultdict(dict)
+
 # abstracts.append(a_dict[293]['abstract'])
 
 # 중요한 단어들을 담을 리스트
 important_words_list = []
+important_year_dict = dict()
 
-for abstract in tqdm(abstracts):
+
+for abstract, year in tqdm(abstract_year_list):
     # 텍스트 전처리: 소문자로 변환하고 문장부호 및 불용어 제거
+    test_dict[year] += 1
     abstract = abstract.lower()
     for punctuation in string.punctuation:
         abstract = abstract.replace(punctuation, "")
@@ -79,9 +91,19 @@ for abstract in tqdm(abstracts):
     # 중요도 순으로 정렬하여 상위 단어 저장
     word_scores.sort(key=lambda x: x[1], reverse=True)
     threshold = 0.2  # 임계치 설정
-    important_words = [[word, score] for word, score in word_scores if score > threshold]
     
+    important_words = [[word, score] for word, score in word_scores if score > threshold]
+
+    # year별로 threshold가 
+    year_words = {word: score for word, score in important_words if score > threshold}
+
+    if year in important_year_dict:
+        for word, score in year_words.items():
+            important_year_dict[year][word] = important_year_dict[year].get(word, 0) + score  # 이미 있는 키에 추가
+    else:
+        important_year_dict[year] = year_words  # 새로운 키와 값 추가
     # 중요한 단어들을 리스트에 추가
+    
     important_words_list.append(important_words)
 
 # 결과 출력
@@ -90,6 +112,8 @@ for i, words in enumerate(important_words_list, 1):
     for word, score in words:
         print(f"{word}: {score}")
     print()
+
+print(test_dict)
 
 
 
@@ -172,19 +196,29 @@ plt.show()
 
 
 # 워드 클라우드
-tmp_dict = dict()
-for sub in important_words_list:
-    for word, score in sub:
-        tmp_dict[word] = score
+# 연도별 워드 클라우드
+for year, year_tfidf in important_year_dict.items():
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(year_tfidf)
 
-print(tmp_dict)
-wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(tmp_dict)
+    plt.figure(figsize=(10, 8))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.title(str(year))  # 연도를 그래프 제목으로 추가
+    plt.axis('off')
+    plt.show()
 
-# 워드 클라우드 시각화
-plt.figure(figsize=(10, 8))
-plt.imshow(wordcloud, interpolation='bilinear')
-plt.axis('off')
-plt.show()
+# tmp_dict = dict()
+# for sub in important_words_list:
+#     for word, score in sub:
+#         tmp_dict[word] = score
+
+# print(tmp_dict)
+# wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(tmp_dict)
+
+# # 워드 클라우드 시각화
+# plt.figure(figsize=(10, 8))
+# plt.imshow(wordcloud, interpolation='bilinear')
+# plt.axis('off')
+# plt.show()
 
 
 
