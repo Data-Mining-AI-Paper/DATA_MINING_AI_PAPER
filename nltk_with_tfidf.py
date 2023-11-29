@@ -5,9 +5,16 @@ import re
 from tokenizers import Tokenizer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+
+from sklearn.decomposition import TruncatedSVD
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import string
+from tqdm import tqdm
 
 import nltk
 nltk.download('punkt')
@@ -34,8 +41,8 @@ print('-' * 20)
     # line = line.strip()
     # split the line into words
 
-abstracts = [a_dict[i]['abstract'] for i in range(10)]
-abstracts.append(a_dict[293]['abstract'])
+abstracts = [a_dict[i]['abstract'] for i in range(1000)]
+# abstracts.append(a_dict[293]['abstract'])
 
 # 중요한 단어들을 담을 리스트
 important_words_list = []
@@ -71,7 +78,87 @@ for i, words in enumerate(important_words_list, 1):
     for word, score in words:
         print(f"{word}: {score}")
     print()
+
+
+# 클러스터 개수 설정
+num_clusters = 4  # 바꿀 수 있는 클러스터 개수
+
+# TF-IDF로 추출된 중요한 단어들을 이용하여 SVD로 차원 축소
+tfidf = TfidfVectorizer()
+tfidf_matrix = tfidf.fit_transform([' '.join([word[0] for word in words]) for words in important_words_list])
+
+svd = TruncatedSVD(n_components=2, random_state=42)
+transformed = svd.fit_transform(tfidf_matrix)
+
+# K-means 클러스터링
+kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+kmeans.fit(tfidf_matrix)
+
+# 클러스터링 결과를 시각화
+cmap = plt.cm.get_cmap('tab10', num_clusters)  # num_clusters에 맞게 색 생성
+colors = cmap.colors
+for i in range(len(transformed)):
+    plt.scatter(transformed[i][0], transformed[i][1], color=colors[kmeans.labels_[i]], marker='o')
+
+plt.title('Clustering Visualization')
+plt.show()
+
+
+
+
+
+
+
+# tfidf = TfidfVectorizer()
+
+# # 텍스트 전처리: 소문자로 변환하고 문장부호 및 불용어 제거
+# preprocessed_abstracts = []
+# for abstract in tqdm(abstracts):
+#     abstract = abstract.lower()
+#     for punctuation in string.punctuation:
+#         abstract = abstract.replace(punctuation, "")
+#     tokens = word_tokenize(abstract)
+#     tokens = [word for word in tokens if word not in stopwords.words('english')]
+#     preprocessed_abstracts.append(' '.join(tokens))
+
+# # TF-IDF 계산
+# tfidf_matrix = tfidf.fit_transform(preprocessed_abstracts)
+
+# # K-means 클러스터링
+# num_clusters = 5  # 클러스터 개수 설정
+# kmeans = KMeans(n_clusters=num_clusters)
+# kmeans.fit(tfidf_matrix)
+
+# # 각 클러스터에 속한 문서들의 인덱스를 딕셔너리에 저장
+# clusters = {}
+# for i, label in enumerate(kmeans.labels_):
+#     if label not in clusters:
+#         clusters[label] = []
+#     clusters[label].append(i)
+
+# # 각 클러스터에 속한 문서들의 토큰 출력 (임계값 이상의 TF-IDF만 출력)
+# threshold = 0.05
+# for cluster, docs in clusters.items():
+#     print(f"Cluster {cluster + 1}의 문서들:")
+#     for doc_index in docs:
+#         print(f"Abstract {doc_index + 1}:")
+#         tokens = preprocessed_abstracts[doc_index].split()
+#         tfidf_scores = tfidf_matrix[doc_index].toarray().flatten()
+#         selected_tokens = [token for token, score in zip(tokens, tfidf_scores) if score > threshold]
+#         print(selected_tokens)
+#     print()
+
+
+
+
+
 print('-' * 20)
+
+
+
+
+
+
 
 words = a_dict[0]['abstract'].split()
 word_dict = defaultdict(int)
