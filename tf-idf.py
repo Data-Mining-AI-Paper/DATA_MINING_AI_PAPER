@@ -1,53 +1,28 @@
-import json
-from tool import *
-import numpy as np
-
-SEARCH_FIELDS = [
-    'abstract',
-    'authors',
-    'citationCount',
-    'corpusId',
-    'externalIds',
-    'fieldsOfStudy',
-    'influentialCitationCount',
-    'isOpenAccess',
-    'journal',
-    'openAccessPdf',
-    'paperId',
-    'publicationDate',
-    'publicationTypes',
-    'publicationVenue',
-    'referenceCount',
-    's2FieldsOfStudy',
-    'title',
-    'url',
-    'venue',
-    'year'
-]
-
-with open("./ACL_PAPERS.json",'r') as f:
-    data = json.load(f)
-
-data = filter_non_abstract(data)
-abstract = [paper.abstract for paper in data]
-
 from sklearn.feature_extraction.text import TfidfVectorizer
-vectorizer = TfidfVectorizer()
-abstract = list(map(remove_url, abstract))
-X = vectorizer.fit_transform(abstract)
-# vectorizer.get_feature_names_out()
-print(X.shape)
-print(vectorizer.vocabulary_) # bog of word
-print(X)
-print(len(vectorizer.get_feature_names_out()))
-print(vectorizer.idf_)
 
-for i, paper in enumerate(data):
-    if "Knowledge Graphs" in paper.title:
-        print(i, paper.title)
+from tool import *
+from preprocess import  preprocess
 
-p = abstract[293]
-response = vectorizer.transform([p])
-p_tdfidf = [(col, vectorizer.get_feature_names_out()[col], response[0, col]) for col in response.nonzero()[1]] 
-p_tdfidf.sort(key=lambda x: x[2], reverse=True)
-print(*p_tdfidf[:20], sep='\n')
+class MyTfidfVectorizer(TfidfVectorizer):
+    def get_important_words(self, X, k=20, threshold=0.15):
+        feature_names = self.get_feature_names_out()
+        result = []
+        for x in X:
+            word_score = [(feature_names[idx], x[0, idx]) for idx in x.nonzero()[1]] 
+            word_score.sort(key=lambda j: j[1], reverse=True)
+            word_score = [(word, score) for word, score in word_score if score > threshold]
+            result.append(dict(word_score[:k]))
+        return result
+
+if __name__ == "__main__":
+    data = get_data("./ACL_PAPERS.json")
+    data = preprocess(data[:100])
+    abstracts = [paper.abstract for paper in data]
+
+    vectorizer = MyTfidfVectorizer()
+    X = vectorizer.fit_transform(abstracts)
+
+    # X[293]
+    word_cluster = merge_dict_by_sum(vectorizer.get_important_words(X, k=20, threshold=0.15))
+    sorted(word_cluster.items(),key=lambda j: j[1], reverse=True)[:10]
+    
