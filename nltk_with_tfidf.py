@@ -11,6 +11,7 @@ from sklearn.decomposition import TruncatedSVD
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+from pyclustering.cluster.agglomerative import agglomerative
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
 from pyclustering.utils import read_sample
@@ -50,7 +51,7 @@ print('-' * 20)
     # line = line.strip()
     # split the line into words
 
-abstracts = [a_dict[i]['abstract'] for i in range(:)]
+abstracts = [a_dict[i]['abstract'] for i in range(100)]
 # abstracts.append(a_dict[293]['abstract'])
 
 # 중요한 단어들을 담을 리스트
@@ -82,16 +83,16 @@ for abstract in tqdm(abstracts):
     important_words_list.append(important_words)
 
 # 결과 출력
-# for i, words in enumerate(important_words_list, 1):
-#     print(f"Abstract {i}의 중요한 단어들 및 중요도 수치:")
-#     for word, score in words:
-#         print(f"{word}: {score}")
-#     print()
+for i, words in enumerate(important_words_list, 1):
+    print(f"Abstract {i}의 중요한 단어들 및 중요도 수치:")
+    for word, score in words:
+        print(f"{word}: {score}")
+    print()
 
 
 
 # 클러스터 개수 설정
-num_clusters = 10  # 바꿀 수 있는 클러스터 개수
+num_clusters = 4  # 바꿀 수 있는 클러스터 개수
 
 # TF-IDF로 추출된 중요한 단어들을 이용하여 SVD로 차원 축소
 tfidf = TfidfVectorizer()
@@ -101,15 +102,25 @@ svd = TruncatedSVD(n_components=2, random_state=42)
 transformed = svd.fit_transform(tfidf_matrix)
 
 # K-means 클러스터링 (pyclustering의 kmeans 사용)
+print('--- start K-means clustering ---')
 initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), num_clusters).initialize()
 kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
 kmeans_instance.process()
 kmeans_clusters = kmeans_instance.get_clusters()
 
 # CURE 클러스터링
-cure_instance = cure(data=tfidf_matrix.todense(), number_cluster=num_clusters)
+print('--- start CURE clustering ---')
+cure_instance = cure(data=tfidf_matrix.todense(), number_cluster=num_clusters, compression=0.3, number_represent_points=num_clusters)
 cure_instance.process()
 cure_clusters = cure_instance.get_clusters()
+
+# 클러스터링 개수 확인 
+print('K-means cluster')
+for cluster_idx in range(num_clusters):
+    print(f"{cluster_idx+1}: {len(kmeans_clusters[cluster_idx])}")
+print('CURE clsuter')
+for cluster_idx in range(num_clusters):    
+    print(f"{cluster_idx+1}: {len(cure_clusters[cluster_idx])}")
 
 # 시각화
 plt.figure(figsize=(12, 6))
