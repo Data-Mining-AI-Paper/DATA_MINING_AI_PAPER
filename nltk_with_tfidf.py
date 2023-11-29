@@ -130,6 +130,10 @@ tfidf_matrix = tfidf.fit_transform([' '.join([word[0] for word in words]) for wo
 svd = TruncatedSVD(n_components=2, random_state=42)
 transformed = svd.fit_transform(tfidf_matrix)
 
+# Standardize the data (important for K-means)
+scaler = StandardScaler(with_mean=False) # Set with_mean to False for sparse matrices
+tfidf_matrix_standardized = scaler.fit_transform(tfidf_matrix)
+
 # K-means 클러스터링 (pyclustering의 kmeans 사용)
 print('--- start K-means clustering ---')
 initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), num_clusters).initialize()
@@ -137,19 +141,20 @@ kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
 kmeans_instance.process()
 kmeans_clusters = kmeans_instance.get_clusters()
 
+
 # CURE 클러스터링
-print('--- start CURE clustering ---')
-cure_instance = cure(data=tfidf_matrix.todense(), number_cluster=num_clusters, compression=0.3, number_represent_points=num_clusters)
-cure_instance.process()
-cure_clusters = cure_instance.get_clusters()
+#print('--- start CURE clustering ---')
+#cure_instance = cure(data=tfidf_matrix.todense(), number_cluster=num_clusters, compression=0.3, number_represent_points=num_clusters)
+#cure_instance.process()
+#cure_clusters = cure_instance.get_clusters()
 
 # 클러스터링 개수 확인 
 print('K-means cluster')
 for cluster_idx in range(num_clusters):
     print(f"{cluster_idx+1}: {len(kmeans_clusters[cluster_idx])}")
-print('CURE clsuter')
-for cluster_idx in range(num_clusters):    
-    print(f"{cluster_idx+1}: {len(cure_clusters[cluster_idx])}")
+#print('CURE clsuter')
+#for cluster_idx in range(num_clusters):    
+#    print(f"{cluster_idx+1}: {len(cure_clusters[cluster_idx])}")
 
 # 시각화
 plt.figure(figsize=(12, 6))
@@ -162,16 +167,19 @@ for cluster in range(num_clusters):
 plt.title('K-means Clustering')
 plt.legend()
 
-plt.subplot(1, 3, 2)
-for cluster in range(num_clusters):
-    cluster_points = [transformed[i] for i in cure_clusters[cluster]]
-    cluster_points = list(zip(*cluster_points))
-    plt.scatter(cluster_points[0], cluster_points[1], label=f"CURE Cluster {cluster+1}")
-plt.title('CURE Clustering')
-plt.legend()
+#plt.subplot(1, 3, 2)
+#for cluster in range(num_clusters):
+#    cluster_points = [transformed[i] for i in cure_clusters[cluster]]
+#    cluster_points = list(zip(*cluster_points))
+#    plt.scatter(cluster_points[0], cluster_points[1], label=f"CURE Cluster {cluster+1}")
+#plt.title('CURE Clustering')
+#plt.legend()
 
-plt.tight_layout()
+#plt.tight_layout()
+
 plt.show()
+#plt.savefig("clustering visualization.png")
+#plt.close()
 
 
 # 클러스터 개수 설정
@@ -208,6 +216,8 @@ for year, year_tfidf in important_year_dict.items():
     plt.title(str(year))  # 연도를 그래프 제목으로 추가
     plt.axis('off')
     plt.show()
+    #plt.savefig(year+".png")
+    #plt.close()
 
 # tmp_dict = dict()
 # for sub in important_words_list:
