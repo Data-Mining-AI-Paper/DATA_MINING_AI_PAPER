@@ -5,16 +5,25 @@ import re
 from tokenizers import Tokenizer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
-
+from sklearn.cluster import KMeans, SpectralClustering
 from sklearn.decomposition import TruncatedSVD
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+
+from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
+from pyclustering.cluster.kmeans import kmeans
+from pyclustering.utils import read_sample
+from pyclustering.samples.definitions import FCPS_SAMPLES
+from pyclustering.cluster import cluster_visualizer
+from pyclustering.cluster.cure import cure
 
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import string
 from tqdm import tqdm
+
+import numpy as np
 
 import nltk
 nltk.download('punkt')
@@ -32,7 +41,7 @@ def replace_non_alphabetic(sentence):
 a_json = open('./ACL_PAPERS.json', encoding = 'utf-8')
 a_dict = json.load(a_json)	#=> 파이썬 자료형(딕셔너리나 리스트)으로 반환
 # test_json = json.dumps(a_dict, ensure_ascii=False, indent=2)
-print(a_dict[0]['abstract'])
+# print(a_dict[0]['abstract'])
 print('-' * 20)
 
 # input comes from STDIN (standard input)
@@ -41,13 +50,13 @@ print('-' * 20)
     # line = line.strip()
     # split the line into words
 
-abstracts = [a_dict[i]['abstract'] for i in range(1000)]
+abstracts = [a_dict[i]['abstract'] for i in range(:)]
 # abstracts.append(a_dict[293]['abstract'])
 
 # 중요한 단어들을 담을 리스트
 important_words_list = []
 
-for abstract in abstracts:
+for abstract in tqdm(abstracts):
     # 텍스트 전처리: 소문자로 변환하고 문장부호 및 불용어 제거
     abstract = abstract.lower()
     for punctuation in string.punctuation:
@@ -73,15 +82,16 @@ for abstract in abstracts:
     important_words_list.append(important_words)
 
 # 결과 출력
-for i, words in enumerate(important_words_list, 1):
-    print(f"Abstract {i}의 중요한 단어들 및 중요도 수치:")
-    for word, score in words:
-        print(f"{word}: {score}")
-    print()
+# for i, words in enumerate(important_words_list, 1):
+#     print(f"Abstract {i}의 중요한 단어들 및 중요도 수치:")
+#     for word, score in words:
+#         print(f"{word}: {score}")
+#     print()
+
 
 
 # 클러스터 개수 설정
-num_clusters = 4  # 바꿀 수 있는 클러스터 개수
+num_clusters = 10  # 바꿀 수 있는 클러스터 개수
 
 # TF-IDF로 추출된 중요한 단어들을 이용하여 SVD로 차원 축소
 tfidf = TfidfVectorizer()
@@ -90,18 +100,62 @@ tfidf_matrix = tfidf.fit_transform([' '.join([word[0] for word in words]) for wo
 svd = TruncatedSVD(n_components=2, random_state=42)
 transformed = svd.fit_transform(tfidf_matrix)
 
-# K-means 클러스터링
-kmeans = KMeans(n_clusters=num_clusters, random_state=42)
-kmeans.fit(tfidf_matrix)
+# K-means 클러스터링 (pyclustering의 kmeans 사용)
+initial_centers = kmeans_plusplus_initializer(tfidf_matrix.todense(), num_clusters).initialize()
+kmeans_instance = kmeans(tfidf_matrix.todense(), initial_centers)
+kmeans_instance.process()
+kmeans_clusters = kmeans_instance.get_clusters()
 
-# 클러스터링 결과를 시각화
-cmap = plt.cm.get_cmap('tab10', num_clusters)  # num_clusters에 맞게 색 생성
-colors = cmap.colors
-for i in range(len(transformed)):
-    plt.scatter(transformed[i][0], transformed[i][1], color=colors[kmeans.labels_[i]], marker='o')
+# CURE 클러스터링
+cure_instance = cure(data=tfidf_matrix.todense(), number_cluster=num_clusters)
+cure_instance.process()
+cure_clusters = cure_instance.get_clusters()
 
-plt.title('Clustering Visualization')
+# 시각화
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 3, 1)
+for cluster in range(num_clusters):
+    cluster_points = [transformed[i] for i in kmeans_clusters[cluster]]
+    cluster_points = list(zip(*cluster_points))
+    plt.scatter(cluster_points[0], cluster_points[1], label=f"K-means Cluster {cluster+1}")
+plt.title('K-means Clustering')
+plt.legend()
+
+plt.subplot(1, 3, 2)
+for cluster in range(num_clusters):
+    cluster_points = [transformed[i] for i in cure_clusters[cluster]]
+    cluster_points = list(zip(*cluster_points))
+    plt.scatter(cluster_points[0], cluster_points[1], label=f"CURE Cluster {cluster+1}")
+plt.title('CURE Clustering')
+plt.legend()
+
+plt.tight_layout()
 plt.show()
+
+
+# 클러스터 개수 설정
+# num_clusters = 4  # 바꿀 수 있는 클러스터 개수
+
+# # TF-IDF로 추출된 중요한 단어들을 이용하여 SVD로 차원 축소
+# tfidf = TfidfVectorizer()
+# tfidf_matrix = tfidf.fit_transform([' '.join([word[0] for word in words]) for words in important_words_list])
+
+# svd = TruncatedSVD(n_components=2, random_state=42)
+# transformed = svd.fit_transform(tfidf_matrix)
+
+# # K-means 클러스터링
+# kmeans = KMeans(n_clusters=num_clusters, random_state=42, init='k-means++')
+# kmeans.fit(tfidf_matrix)
+
+# # 클러스터링 결과를 시각화
+# cmap = plt.cm.get_cmap('tab10', num_clusters)  # num_clusters에 맞게 색 생성
+# colors = cmap.colors
+# for i in range(len(transformed)):
+#     plt.scatter(transformed[i][0], transformed[i][1], color=colors[kmeans.labels_[i]], marker='o')
+
+# plt.title('Clustering Visualization')
+# plt.show()
 
 
 
