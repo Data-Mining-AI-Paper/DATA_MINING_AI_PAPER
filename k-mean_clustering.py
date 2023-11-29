@@ -52,13 +52,16 @@ if __name__ == "__main__":
     plt.xlabel('Number of clusters (k)')
     plt.ylabel('Distortion')
     plt.title('Elbow Method for Optimal k')
-    plt.savefig("Elbow Method.png")
-    plt.close()
+    plt.savefig("output/k-means/Elbow Method.png")
+    # plt.close()
 
     # Find the optimal k based on the elbow point
     # num_clusters = 4
     num_clusters = np.argmin(distortions) + 1
     print(f"The optimal number of clusters (k) is: {num_clusters}")
+
+    with open("optimal_k-means_instance.pickle","wb") as f:
+        pickle.dump(kmeans_instances[num_clusters-1], f)
 
     # Perform k-means clustering with the optimal k
     kmeans_clusters = kmeans_instances[num_clusters-1].get_clusters()
@@ -80,4 +83,6 @@ if __name__ == "__main__":
         plt.scatter(cluster_points[0], cluster_points[1], label=f"K-means Cluster {i+1}")
     plt.title('K-means Clustering')
     plt.legend()
-    plt.show()
+    # plt.show()
+    plt.savefig("output/k-means/k-means_cluster.png")
+
