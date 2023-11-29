@@ -3,6 +3,7 @@ from collections import defaultdict
 import json
 import re
 from tokenizers import Tokenizer
+import lemmatization
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans, SpectralClustering
@@ -57,7 +58,9 @@ print('-' * 20)
 test_dict = defaultdict(int)
 
 thesis_num = 100
-parse_abstracts = [a_dict[i]['abstract'] for i in range(thesis_num)]
+#thesis_num=len(a_dict))
+lemmatized_data=[a_dict[i]['abstract'] for i in range(thesis_num)]
+parse_abstracts = lemmatization.preprocess(lemmatized_data) 
 parse_years = [a_dict[i]['year'] for i in range(thesis_num)]
 abstract_year_list = [[parse_abstracts[i], parse_years[i]] for i in range(thesis_num)]
 
