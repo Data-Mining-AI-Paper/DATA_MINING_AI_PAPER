@@ -8,6 +8,7 @@ from multiprocessing import Pool, cpu_count
 from sklearn.decomposition import TruncatedSVD
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
+from mpl_toolkits.mplot3d import Axes3D
 
 from tf_idf import MyTfidfVectorizer
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
-    max_clusters=8
+    max_clusters=10
     print('Processing K-means clustering...')
     with Pool(cpu_count()) as pool:
         kmeans_instances = pool.starmap(process_kmeans, zip(repeat(X), range(1, max_clusters + 1)))
@@ -72,17 +73,22 @@ if __name__ == "__main__":
         print(f"Cluster #{i+1}: {len(kmeans_clusters[i])}")
 
 
-    svd = TruncatedSVD(n_components=2, random_state=42)
-    Y = svd.fit_transform(X)
+    svd = TruncatedSVD(n_components=3, random_state=42)
+    Y_3d = svd.fit_transform(X)
 
     # 시각화
-    plt.figure(figsize=(10, 8))
-    for i in range(num_clusters):
-        cluster_points = [Y[paper] for paper in kmeans_clusters[i]]
-        cluster_points = list(zip(*cluster_points))
-        plt.scatter(cluster_points[0], cluster_points[1], label=f"K-means Cluster {i+1}")
-    plt.title('K-means Clustering')
-    plt.legend()
-    # plt.show()
-    plt.savefig("output/k-means/k-means_cluster.png")
+   # 3D Visualization
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
 
+    for i in range(num_clusters):
+        cluster_points = [Y_3d[paper] for paper in kmeans_clusters[i]]
+        cluster_points = np.array(cluster_points)
+        ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2], label=f"K-means Cluster {i+1}")
+
+    ax.set_title('3D K-means Clustering')
+    ax.set_xlabel('Dimension 1')
+    ax.set_ylabel('Dimension 2')
+    ax.set_zlabel('Dimension 3')
+    ax.legend()
+    plt.savefig("output/k-means/k-means_cluster_3d.png")
