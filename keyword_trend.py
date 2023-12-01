@@ -9,10 +9,13 @@ from tool import *
 from tf_idf import MyTfidfVectorizer
 
 import numpy as np
-def softmax(z):
-    exp_z = np.exp(z)
-    return exp_z / np.sum(exp_z)
 
+def softmax(z):
+    z_min = np.min(z)
+    z_max = np.max(z)
+    normalized_z = (z - z_min) / (z_max - z_min)
+    exp_z = np.exp(normalized_z)
+    return exp_z / np.sum(exp_z)
 
 print("loading preprocessed data...", end='')
 with open("preprocessed_ACL_PAPERS.pickle","rb") as f:
@@ -27,6 +30,7 @@ important_words_by_year = {}
 keyword_trend_dict = {}
 keyword_check_set = set()
 
+
 for year, one_year_data in tqdm(data_by_year.items()):
     abstracts = [paper.abstract for paper in one_year_data]
 
@@ -38,12 +42,19 @@ for year, one_year_data in tqdm(data_by_year.items()):
     # print(*important_words[0].items(), sep='\n')
 
     important_words_by_year[year] = merge_dict_by_sum(important_words)
-    for key, val in important_words_by_year[year].items():
-        important_words_by_year[year][key] = val / len(one_year_data)# * len(important_words_by_year[year].keys())
-
+    
     for i in important_words_by_year[year].keys():
         keyword_check_set.add(i)
-   
+
+z = [len(important_words_by_year[year].keys()) for year in data_by_year.keys()]
+s = np.array(z) / np.sum(z) 
+print(s)
+for i, year in enumerate(data_by_year.keys()):
+    for key, val in important_words_by_year[year].items():
+        important_words_by_year[year][key] = val / len(one_year_data) * len(important_words_by_year[year].keys())
+
+
+
 from random import shuffle
 k = list(keyword_check_set)
 shuffle(k)
