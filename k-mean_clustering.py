@@ -16,11 +16,14 @@ from sklearn.preprocessing import StandardScaler
 from tf_idf import MyTfidfVectorizer
 
 def process_kmeans(X, k):
+    print(k)
     initial_centers = kmeans_plusplus_initializer(X.todense(), k).initialize()
     kmeans_instance = kmeans(X.todense(), initial_centers)
     kmeans_instance.process()
-    print(k)
     return kmeans_instance
+
+def calculate_distortion(X,k):
+    return process_kmeans(X,k).get_total_wce()
 
 if __name__ == "__main__":
     print("Loading preprocessed data...", end='')
@@ -37,23 +40,19 @@ if __name__ == "__main__":
     vectorizer = MyTfidfVectorizer()
     X = vectorizer.fit_transform([' '.join(paper.keys()) for paper in important_words])
 
-    # # Standardize the data (important for K-means)
-    # scaler = StandardScaler(with_mean=False) # Set with_mean to False for sparse matrices
-    # tfidf_matrix_standardized = scaler.fit_transform(tfidf_matrix)
-
     # K-means 클러스터링
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
-    max_clusters=10
+    parallel_num = cpu_count()
+    k_list = range(2, parallel_num + 2)
     print('Processing K-means clustering...')
-    with Pool(cpu_count()) as pool:
-        kmeans_instances = pool.starmap(process_kmeans, zip(repeat(X), range(2, max_clusters + 2)))
+    with Pool(parallel_num) as pool:
+        distortions = pool.starmap(calculate_distortion, zip(repeat(X), k_list))
     print('Done')
 
     # Plot the elbow graph
-    distortions = [ki.get_total_wce() for ki in kmeans_instances]
-    plt.plot(range(2, max_clusters + 2), distortions, marker='o')
+    plt.plot(k_list, distortions, marker='o')
     plt.xlabel('Number of clusters (k)')
     plt.ylabel('Distortion')
     plt.title('Elbow Method for Optimal k')
@@ -61,15 +60,14 @@ if __name__ == "__main__":
     # plt.close()
 
     # Find the optimal k based on the elbow point
-    # num_clusters = 4
-    num_clusters = np.argmin(distortions) + 2
+    num_clusters = k_list[np.argmin(distortions)]
     print(f"The optimal number of clusters (k) is: {num_clusters}")
-
-    with open("optimal_k-means_instance.pickle","wb") as f:
-        pickle.dump(kmeans_instances[num_clusters-2], f)
-
+    
     # Perform k-means clustering with the optimal k
-    kmeans_clusters = kmeans_instances[num_clusters-2].get_clusters()
+    kmeans_instance = process_kmeans(X, num_clusters)
+    with open(f"kmeans_instance_k{num_clusters}.pickle","wb") as f:
+        pickle.dump(kmeans_instance, f)
+    kmeans_clusters = kmeans_instance.get_clusters()
 
     # number of paper in cluster
     print('K-means cluster')
