@@ -11,13 +11,13 @@ from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.preprocessing import StandardScaler
-
+from tqdm import tqdm
 
 from tf_idf import MyTfidfVectorizer
 
 def process_kmeans(X, k): 
-    initial_centers = kmeans_plusplus_initializer(X.todense(), k).initialize()
-    kmeans_instance = kmeans(X.todense(), initial_centers)
+    initial_centers = kmeans_plusplus_initializer(X, k).initialize()
+    kmeans_instance = kmeans(X, initial_centers)
     kmeans_instance.process()
     print(k)
     return kmeans_instance
@@ -38,12 +38,12 @@ if __name__ == "__main__":
 
 
     vectorizer = MyTfidfVectorizer()
-    X = vectorizer.fit_transform([' '.join(paper.keys()) for paper in important_words])
+    X = vectorizer.fit_transform([' '.join(paper.keys()) for paper in important_words]) 
 
-    # Normalisze the data
-    scaler= StandardScaler(with_mean=False)
-    X=scaler.fit_transform(X)
-
+    svd = TruncatedSVD(n_components=4, random_state=42)
+    X = svd.fit_transform(X)
+    
+    
     # K-means 클러스터링
     print('--- start K-means clustering ---')
     
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # plt.close()
 
     # Find the optimal k based on the elbow point
-    num_clusters = k_list[np.argmin(distortions)]
+    num_clusters = 5 #k_list[np.argmin(distortions)]
     print(f"The optimal number of clusters (k) is: {num_clusters}")
     
     # Perform k-means clustering with the optimal k
@@ -79,8 +79,8 @@ if __name__ == "__main__":
         print(f"Cluster #{i+1}: {len(kmeans_clusters[i])}")
 
 
-    svd = TruncatedSVD(n_components=3, random_state=42)
-    Y_3d = svd.fit_transform(X)
+    #svd = TruncatedSVD(n_components=20, random_state=42)
+    Y_3d = X#svd.fit_transform(X)
 
     # 시각화
     # 3D Visualization with multiple views and zoomed-in versions
