@@ -15,11 +15,11 @@ from sklearn.preprocessing import StandardScaler
 
 from tf_idf import MyTfidfVectorizer
 
-def process_kmeans(X, k):
-    print(k)
+def process_kmeans(X, k): 
     initial_centers = kmeans_plusplus_initializer(X.todense(), k).initialize()
     kmeans_instance = kmeans(X.todense(), initial_centers)
     kmeans_instance.process()
+    print(k)
     return kmeans_instance
 
 def calculate_distortion(X,k):
@@ -40,12 +40,16 @@ if __name__ == "__main__":
     vectorizer = MyTfidfVectorizer()
     X = vectorizer.fit_transform([' '.join(paper.keys()) for paper in important_words])
 
+    # Normalisze the data
+    scaler= StandardScaler(with_mean=False)
+    X=scaler.fit_transform(X)
+
     # K-means 클러스터링
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
     parallel_num = cpu_count()
-    k_list = range(2, parallel_num + 2)
+    k_list = range(1, 11,1)
     print('Processing K-means clustering...')
     with Pool(parallel_num) as pool:
         distortions = pool.starmap(calculate_distortion, zip(repeat(X), k_list))
@@ -91,7 +95,7 @@ if __name__ == "__main__":
         for i in range(num_clusters):
             cluster_points = [Y_3d[paper] for paper in kmeans_clusters[i]]
             cluster_points = np.array(cluster_points)
-            ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2], label=f"K-means Cluster {i + 2}")
+            ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2], label=f"K-means Cluster {i + 1}")
 
         ax.set_title(f'3D K-means Clustering (View {idx})')
         ax.set_xlabel('Dimension 1')
