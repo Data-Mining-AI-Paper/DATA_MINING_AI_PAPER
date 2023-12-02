@@ -1,9 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from wordcloud import WordCloud
 from collections import defaultdict
-from sys import stdin
 
 from tool import *
 from tf_idf import MyTfidfVectorizer
@@ -25,42 +23,38 @@ print("Done")
 data_by_year =  defaultdict(list)
 for paper in data:
     data_by_year[paper.year].append(paper)
+data_by_year = dict(sorted(data_by_year.items()))
+years = data_by_year.keys()
 
 important_words_by_year = {}
-keyword_trend_dict = {}
-keyword_check_set = set()
-
-
+total_keywords = set()
 for year, one_year_data in tqdm(data_by_year.items()):
     abstracts = [paper.abstract for paper in one_year_data]
 
     vectorizer = MyTfidfVectorizer()
     X = vectorizer.fit_transform(abstracts)
 
-    important_words = vectorizer.get_important_words(X, k=20, threshold=0.2)
+    important_words = vectorizer.get_important_words(X, k=20, threshold=0.17)
     # print("important words of paper:", data[0].title)
     # print(*important_words[0].items(), sep='\n')
 
     important_words_by_year[year] = merge_dict_by_sum(important_words)
-    
-    for i in important_words_by_year[year].keys():
-        keyword_check_set.add(i)
+    total_keywords |= set(important_words_by_year[year].keys())
 
-z = [len(important_words_by_year[year].keys()) for year in data_by_year.keys()]
-s = np.array(z) / np.sum(z) 
-print(s)
+num_keywords = [len(important_words_by_year[year].keys()) for year in years]
+# Suppose number of keyword of year as number of variety of reasearch topic
+num_research_topic = num_keywords
+weight_research_topic = np.array(num_research_topic) / np.sum(num_research_topic) 
 for i, year in enumerate(data_by_year.keys()):
-    for key, val in important_words_by_year[year].items():
-        important_words_by_year[year][key] = val / len(one_year_data) * len(important_words_by_year[year].keys())
+    for word, tfidf in important_words_by_year[year].items():
+        important_words_by_year[year][word] = tfidf / len(data_by_year[year]) * weight_research_topic[i]
 
 
-
-from random import shuffle
-k = list(keyword_check_set)
-shuffle(k)
-k = k[:10]
-k.extend(['translation', 'word', 'knowledge', 'graph', 'prompt'])
-# print(k[:10])
+from random import sample
+keyword_to_visual = []
+# keyword_to_visual += sample(sorted(total_keywords),5)
+keyword_to_visual += ['translation', 'word', 'knowledge', 'prompt']
+print(keyword_to_visual)
 
 
 ## year graph
@@ -96,28 +90,28 @@ k.extend(['translation', 'word', 'knowledge', 'graph', 'prompt'])
 #     input_keyword = list(stdin.readline().split())
 # input_keyword = input_keyword[0]
 # print(important_words_by_year[2016])
-print(k)
-value = [[] for _ in range(15)]
-for idx, input_keyword in enumerate(k):
-    for year in sorted(list(important_words_by_year.keys())):
-        if input_keyword in important_words_by_year[year]:
-            keyword_trend_dict[year] = important_words_by_year[year][input_keyword]
+
+keyword_trends = []
+for idx, keyword in enumerate(keyword_to_visual):
+    keyword_trend = []
+    for year in years:
+        if keyword in important_words_by_year[year]:
+            keyword_trend.append(important_words_by_year[year][keyword])
         else:
-            keyword_trend_dict[year] = 0
-        value[idx] = list(keyword_trend_dict.values())
-years = list(keyword_trend_dict.keys())
+            keyword_trend.append(0)
+    keyword_trends.append(keyword_trend)
     
 
 plt.figure(figsize=(10, 6))
-for i in range(15):
-    plt.plot(years, value[i], marker='o', linestyle='-')
+for i in range(len(keyword_to_visual)):
+    plt.plot(years, keyword_trends[i], marker='o', linestyle='-')
 
-plt.title('Keyword Trend: {}'.format(input_keyword))
+plt.title(f"Keyword Trend: {' '.join(keyword_to_visual)}")
 plt.xlabel('Year')
 plt.ylabel('Value')
 plt.grid(True)
-plt.xticks(years, rotation=45)
+# plt.xticks(years, rotation=45)
 plt.tight_layout()
-plt.legend(k, loc='best') 
+plt.legend(keyword_to_visual, loc='best') 
 
 plt.show()
