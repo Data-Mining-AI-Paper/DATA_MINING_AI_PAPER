@@ -8,13 +8,6 @@ from tf_idf import MyTfidfVectorizer
 
 import numpy as np
 
-def softmax(z):
-    z_min = np.min(z)
-    z_max = np.max(z)
-    normalized_z = (z - z_min) / (z_max - z_min)
-    exp_z = np.exp(normalized_z)
-    return exp_z / np.sum(exp_z)
-
 print("loading preprocessed data...", end='')
 with open("preprocessed_ACL_PAPERS.pickle","rb") as f:
     data = pickle.load(f)
@@ -28,12 +21,13 @@ years = data_by_year.keys()
 
 important_words_by_year = {}
 total_keywords = set()
+vectorizers = []
 for year, one_year_data in tqdm(data_by_year.items()):
     abstracts = [paper.abstract for paper in one_year_data]
 
     vectorizer = MyTfidfVectorizer()
+    vectorizers.append(vectorizer)
     X = vectorizer.fit_transform(abstracts)
-
     important_words = vectorizer.get_important_words(X, k=20, threshold=0.17)
     # print("important words of paper:", data[0].title)
     # print(*important_words[0].items(), sep='\n')
@@ -44,16 +38,20 @@ for year, one_year_data in tqdm(data_by_year.items()):
 num_keywords = [len(important_words_by_year[year].keys()) for year in years]
 # Suppose number of keyword of year as number of variety of reasearch topic
 num_research_topic = num_keywords
-weight_research_topic = np.array(num_research_topic) / np.sum(num_research_topic) 
+weight_research_topic = np.array(num_research_topic) / np.sum(num_research_topic)
+
+beta = 0.5
 for i, year in enumerate(data_by_year.keys()):
     for word, tfidf in important_words_by_year[year].items():
-        important_words_by_year[year][word] = tfidf / len(data_by_year[year]) * weight_research_topic[i]
-
+        important_words_by_year[year][word] = tfidf / len(data_by_year[year])
+        if i > 0:
+            important_words_by_year[year][word] *= (beta * vectorizers[i-1].get_idf_by_name(word) + (1 - beta) * vectorizers[i].get_idf_by_name(word))
+            important_words_by_year[year][word] /= vectorizers[i].get_idf_by_name(word)
 
 from random import sample
 keyword_to_visual = []
 # keyword_to_visual += sample(sorted(total_keywords),5)
-keyword_to_visual += ['translation', 'word', 'knowledge', 'prompt']
+keyword_to_visual += ['translation', 'word', 'knowledge', 'prompt', 'database', 'grammar']
 print(keyword_to_visual)
 
 
@@ -106,7 +104,7 @@ plt.figure(figsize=(10, 6))
 for i in range(len(keyword_to_visual)):
     plt.plot(years, keyword_trends[i], marker='o', linestyle='-')
 
-plt.title(f"Keyword Trend: {' '.join(keyword_to_visual)}")
+plt.title(f"Keyword Trend: {', '.join(keyword_to_visual)}")
 plt.xlabel('Year')
 plt.ylabel('Value')
 plt.grid(True)

@@ -1,3 +1,5 @@
+import numpy as np
+from bisect import bisect_left
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 class MyTfidfVectorizer(TfidfVectorizer):
@@ -10,6 +12,15 @@ class MyTfidfVectorizer(TfidfVectorizer):
             word_score = [(word, score) for word, score in word_score if score > threshold]
             result.append(dict(word_score[:k]))
         return result
+    
+    def get_idf_by_name(self, name):
+        names = np.array(self.get_feature_names_out())
+        sort_index = np.argsort(names)
+        idx = bisect_left(sorted(names), name)
+        if idx < len(names) and  name == names[idx]:
+            return self.idf_[sort_index[idx]]    
+        else:
+            return 10
 
 if __name__ == "__main__":
     from tool import *
