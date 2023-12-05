@@ -25,7 +25,7 @@ for year, one_year_data in tqdm(data_by_year.items()):
     vectorizer = MyTfidfVectorizer()
     X = vectorizer.fit_transform(abstracts)
 
-    important_words = vectorizer.get_important_words(X, k=20, threshold=0.2)
+    important_words = vectorizer.get_important_words(X, k=20, threshold=0.17)
     # print("important words of paper:", data[0].title)
     # print(*important_words[0].items(), sep='\n')
 
