@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from collections import defaultdict
 from sklearn.preprocessing import MinMaxScaler, StandardScaler,RobustScaler
+import seaborn as sns
 
 from tool import *
 from tf_idf import MyTfidfVectorizer
@@ -25,7 +26,7 @@ data_by_year =  defaultdict(list)
 for paper in data:
     data_by_year[paper.year].append(paper)
 data_by_year = dict(sorted(data_by_year.items()))
-years = data_by_year.keys()
+years = list(data_by_year.keys())
 
 important_words_by_year = {}
 total_keywords = set()
@@ -50,19 +51,18 @@ for i, year in enumerate(data_by_year.keys()):
     
     # Normalize important_words_by_year[year] values with Scaler
 
-    scaler = RobustScaler()
-    temp=scaler.fit_transform(np.array(list(important_words_by_year[year].values())).reshape(-1,1))
-    important_words_by_year[year]=dict(zip(important_words_by_year[year].keys(),temp.reshape(-1)))
+    # scaler = RobustScaler()
+    # temp=scaler.fit_transform(np.array(list(important_words_by_year[year].values())).reshape(-1,1))
+    # important_words_by_year[year]=dict(zip(important_words_by_year[year].keys(),temp.reshape(-1)))
     
     for word, tfidf in important_words_by_year[year].items():
         important_words_by_year[year][word] = tfidf / len(data_by_year[year])# * weight_research_topic[i]
 
 from random import sample
-keyword_to_visual = []
-# keyword_to_visual += sample(sorted(total_keywords),5)
-keyword_to_visual += ['translation', 'word', 'knowledge', 'prompt']
-print(keyword_to_visual)
+keyword_to_visual = [ 'derivation', 'multimodal', 'prompt', 'segmentation', 'semantic']
+# keyword_to_visual += sample(sorted(total_keywords),18)
 
+print(keyword_to_visual)
 
 ## year graph
 # tmp = defaultdict(int)
@@ -101,7 +101,9 @@ print(keyword_to_visual)
 keyword_trends = []
 for idx, keyword in enumerate(keyword_to_visual):
     keyword_trend = []
-    for year in years:
+    for year in years[years.index(2004):]:
+        # if year < 2004:
+        #     continue
         if keyword in important_words_by_year[year] and important_words_by_year[year][keyword] > 0:
             keyword_trend.append(important_words_by_year[year][keyword])
             
@@ -115,16 +117,49 @@ for idx, keyword in enumerate(keyword_to_visual):
 
     keyword_trends.append(keyword_trend)
     
-plt.figure(figsize=(10, 6))
-for i in range(len(keyword_to_visual)):
-    plt.plot(years, keyword_trends[i], marker='o', linestyle='-')
+# plt.figure(figsize=(10, 6))
+# for i in range(len(keyword_to_visual)):
+#     plt.plot(years[years.index(2004):], keyword_trends[i], marker='o', linestyle='-')
 
-plt.title(f"Keyword Trend: {' '.join(keyword_to_visual)}")
-plt.xlabel('Year')
-plt.ylabel('Value')
-plt.grid(True)
-# plt.xticks(years, rotation=45)
+# plt.title(f"Keyword Trend: {' '.join(keyword_to_visual)}")
+# plt.xlabel('Year')
+# plt.ylabel('Value')
+# plt.grid(True)
+# plt.xticks(years[years.index(2004)::1], rotation=45)  # x 축 눈금 간격을 1로 설정
+# # plt.xticks(years, rotation=45)
+# plt.tight_layout()
+# plt.legend(keyword_to_visual, loc='best') 
+
+
+# sns.set(style='whitegrid')
+
+# plt.figure(figsize=(10, 6))
+# for i in range(len(keyword_to_visual)):
+#     sns.lineplot(x=years[years.index(2004):], y=keyword_trends[i], marker='o', label=keyword_to_visual[i])
+
+# plt.title(f"Keyword Trend: {' '.join(keyword_to_visual)}")
+# plt.xlabel('Year')
+# plt.xticks(years[years.index(2004)::1], rotation=45)
+# plt.ylabel('Value')
+# plt.legend(loc='best')  # 범례 위치 설정
+
+# plt.tight_layout()
+# plt.show()
+
+
+# plt.show()
+
+sns.set(style='whitegrid')
+
+fig, axes = plt.subplots(nrows=1, ncols=len(keyword_to_visual), figsize=(18, 6))
+
+for i, keyword in enumerate(keyword_to_visual):
+    ax = axes[i]
+    ax.set_title(f"Keyword Trend: {keyword}")
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Value')
+    sns.lineplot(x=years[years.index(2004):], y=keyword_trends[i], marker='o', ax=ax)
+    ax.set_xticks(years[years.index(2004)::5])  # 5년 단위로 설정
+
 plt.tight_layout()
-plt.legend(keyword_to_visual, loc='best') 
-
 plt.show()
