@@ -1,12 +1,10 @@
 import pickle
 import numpy as np
-import parmap
 
 from itertools import repeat
 from matplotlib import pyplot as plt
 from multiprocessing import Pool, cpu_count
 from sklearn.decomposition import TruncatedSVD
-from sklearn.decomposition import PCA
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
 from mpl_toolkits.mplot3d import Axes3D
@@ -26,10 +24,10 @@ def calculate_distortion(X,k):
     return process_kmeans(X,k).get_total_wce()
 
 if __name__ == "__main__":
-    print("Loading preprocessed data...", end='')
+    method_name = "word2vec-embedding"
+
     with open("preprocessed_ACL_PAPERS.pickle","rb") as f:
         data = pickle.load(f)
-    print("Done")
 
     abstracts = [paper.abstract for paper in data]
     vectorizer = MyTfidfVectorizer()
@@ -60,7 +58,7 @@ if __name__ == "__main__":
     plt.xlabel('Number of clusters (k)')
     plt.ylabel('Distortion')
     plt.title('Elbow Method for Optimal k')
-    plt.savefig("output/k-means/Elbow Method.png")
+    plt.savefig(f"output/k-means/Elbow Method_{method_name}.png")
     # plt.close()
 
     # Find the optimal k based on the elbow point
@@ -69,7 +67,7 @@ if __name__ == "__main__":
     
     # Perform k-means clustering with the optimal k
     kmeans_instance = process_kmeans(X, num_clusters)
-    with open(f"kmeans_instance_k{num_clusters}.pickle","wb") as f:
+    with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_k{num_clusters}.pickle","wb") as f:
         pickle.dump(kmeans_instance, f)
     kmeans_clusters = kmeans_instance.get_clusters()
 
