@@ -3,7 +3,7 @@ from tqdm import tqdm
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 class MyTfidfVectorizer(TfidfVectorizer):
-    def get_important_words(self, X, k=20, threshold=0.15):
+    def get_important_words(self, X, k=-1, threshold=0):
         feature_names = self.get_feature_names_out()
         result = []
         for x in X:
