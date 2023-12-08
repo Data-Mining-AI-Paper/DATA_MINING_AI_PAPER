@@ -51,7 +51,9 @@ if __name__ == "__main__":
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
-    k_list = range(30, 41)
+    start=30
+    end=41
+    k_list = range(start, end)
     print('Processing K-means clustering...')
     with Pool(parallel_num) as pool:
         k_instances = pool.starmap(process_kmeans, zip(repeat(X), k_list))
@@ -76,6 +78,10 @@ if __name__ == "__main__":
     plt.title('Silhouette Method for Optimal k')
     plt.legend()
     plt.savefig(f"output/k-means/Silhouette Method_{method_name}.png")
+
+    for i in range(start,end):
+        with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_everything_{i}.pickle", "wb") as f:
+            pickle.dump(k_instances[i-start],f)
     
     # Find the optimal k based on the elbow point
     num_clusters_elbow = k_list[np.argmin(distortions)]
@@ -85,8 +91,8 @@ if __name__ == "__main__":
     num_clusters_silhouette = k_list[np.argmax(silhouette_scores)]
     print(f"The optimal number of clusters (k) based on the silhouette method is: {num_clusters_silhouette}")
 
-    opt_num_clusters = input("Enter optimal cluster number:")
-    opt_kmeans_instance = k_instances[opt_num_clusters-1]
+    opt_num_clusters = int(input("Enter optimal cluster number:"))
+    opt_kmeans_instance = k_instances[opt_num_clusters-start]
     with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_opt_k{opt_num_clusters}.pickle", "wb") as f:
         pickle.dump(opt_kmeans_instance, f)
 
