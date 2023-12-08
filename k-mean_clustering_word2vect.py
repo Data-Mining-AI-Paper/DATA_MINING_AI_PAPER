@@ -89,20 +89,31 @@ if __name__ == "__main__":
     kmeans_instance_elbow = process_kmeans(X, num_clusters_elbow)
     with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_elbow_k{num_clusters_elbow}.pickle","wb") as f:
         pickle.dump(kmeans_instance_elbow, f)
-    kmeans_clusters_elbow= kmeans_instance_elbow.get_clusters()
     
     # Perform k-means clustering with the optimal k from the silhouette method
     kmeans_instance_silhouette = process_kmeans(X, num_clusters_silhouette)
     with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_silhouette_k{num_clusters_silhouette}.pickle", "wb") as f:
         pickle.dump(kmeans_instance_silhouette, f)
-    kmeans_clusters_silhouette = kmeans_instance_silhouette.get_clusters()
 
     # number of paper in cluster
+    kmeans_clusters_elbow= kmeans_instance_elbow.get_clusters()
     print('K-means cluster_elbow')
     for i in range(num_clusters_elbow):
         print(f"Cluster #{i+1}: {len(kmeans_clusters_elbow[i])}")
 
     # number of paper in cluster
+    kmeans_clusters_silhouette = kmeans_instance_silhouette.get_clusters()
     print('K-means cluster_silhouette')
     for i in range(num_clusters_silhouette):
         print(f"Cluster #{i+1}: {len(kmeans_clusters_silhouette[i])}")
+
+    opt_num_clusters = input("Enter optimal cluster number:")
+    opt_kmeans_instance = process_kmeans(X, opt_num_clusters)
+    with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_opt_k{opt_num_clusters}.pickle", "wb") as f:
+        pickle.dump(opt_kmeans_instance, f)
+
+    # number of paper in cluster
+    opt_kmeans_clusters = opt_kmeans_instance.get_clusters()
+    print('optimal K-means cluster')
+    for i in range(opt_num_clusters):
+        print(f"Cluster #{i+1}: {len(opt_kmeans_clusters[i])}")
