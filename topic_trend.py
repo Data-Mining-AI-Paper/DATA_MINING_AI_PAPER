@@ -2,7 +2,6 @@ import pickle
 
 from collections import defaultdict
 from matplotlib import pyplot as plt
-import numpy as np
 
 from tf_idf import MyTfidfVectorizer
 from tool import merge_dict_by_sum
@@ -19,9 +18,8 @@ years = data_by_year.keys()
 abstracts = [paper.abstract for paper in data]
 vectorizer = MyTfidfVectorizer()
 X = vectorizer.fit_transform(abstracts)
-important_words = vectorizer.get_important_words(X, k=20, threshold=0.17)
 
-with open(f"output/k-means/kmeans_instance/word2vec-embedding_kmeans_instance_k29.pickle","rb") as f:
+with open(f"output/k-means/kmeans_instance/word2vec-embedding_kmeans_instance_opt_k36.pickle","rb") as f:
     kmeans_instance = pickle.load(f)
 
 kmeans_clusters = kmeans_instance.get_clusters()
@@ -67,24 +65,38 @@ for xc in X_by_cluster:
 # plt.savefig(f"output/k-means/topic_trend_k{num_clusters}.png")
 # print("Done")
 
-fig, axs = plt.subplots(2, 2, figsize=(20, 15))
+fig, axs = plt.subplots(3, 2, figsize=(20, 15))
 
 # 각 서브플롯에 데이터 플로팅
-axs[0, 0].set_title('Plot 1')
-for i, c in enumerate(raito_of_cluster[:num_clusters//4]):
+axs[0, 0].set_xlabel('Years')
+axs[0, 0].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[:num_clusters//6]):
     axs[0, 0].plot(years, c, label=cluster_main_topic[i])
 
-axs[0, 1].set_title('Plot 2')
-for i, c in enumerate(raito_of_cluster[num_clusters//4:num_clusters//4*2]):
+axs[0, 1].set_xlabel('Years')
+axs[0, 1].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[num_clusters//6:num_clusters//6*2]):
     axs[0, 1].plot(years, c, label=cluster_main_topic[i+num_clusters//4])
 
-axs[1, 0].set_title('Plot 3')
-for i, c in enumerate(raito_of_cluster[num_clusters//4*2:num_clusters//4*3]):
-    axs[1, 0].plot(years, c, label=cluster_main_topic[i+num_clusters//4*2])
+axs[1, 0].set_xlabel('Years')
+axs[1, 0].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[num_clusters//6*2:num_clusters//6*3]):
+    axs[1, 0].plot(years, c, label=cluster_main_topic[i+num_clusters//6*2])
 
-axs[1, 1].set_title('Plot 4')
-for i, c in enumerate(raito_of_cluster[num_clusters//4*3:]):
-    axs[1, 1].plot(years, c, label=cluster_main_topic[i+num_clusters//4*3])
+axs[1, 1].set_xlabel('Years')
+axs[1, 1].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[num_clusters//6*3:num_clusters//6*4]):
+    axs[1, 1].plot(years, c, label=cluster_main_topic[i+num_clusters//6*3])
+
+axs[2, 0].set_xlabel('Years')
+axs[2, 0].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[num_clusters//6*4:num_clusters//6*5]):
+    axs[2, 0].plot(years, c, label=cluster_main_topic[i+num_clusters//6*4])
+
+axs[2, 1].set_xlabel('Years')
+axs[2, 1].set_ylabel('Percent')
+for i, c in enumerate(raito_of_cluster[num_clusters//6*5:]):
+    axs[2, 1].plot(years, c, label=cluster_main_topic[i+num_clusters//6*5])
 
 for ax in axs.flat:
     ax.legend()
