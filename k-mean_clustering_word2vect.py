@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
-    k_list = range(25, 36)
+    k_list = range(30, 41)
     print('Processing K-means clustering...')
     with Pool(parallel_num) as pool:
         k_instances = pool.starmap(process_kmeans, zip(repeat(X), k_list))
