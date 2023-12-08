@@ -7,6 +7,7 @@ from multiprocessing import Pool, cpu_count
 import numpy as np
 from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.cluster.kmeans import kmeans
+from sklearn.metrics import silhouette_score
 
 from tf_idf import MyTfidfVectorizer
 
@@ -19,6 +20,15 @@ def process_kmeans(X, k):
 
 def calculate_distortion(X,k):
     return process_kmeans(X,k).get_total_wce()
+
+
+def calculate_silhouette(X, instances):
+    silhouette_avg_list=[]
+    for instance in instances:
+        labels = np.concatenate([np.full(len(cluster), i) for i, cluster in enumerate(instance.get_clusters())])
+        silhouette_avg = silhouette_score(X, labels)
+        silhouette_avg_list.append(silhouette_avg)
+    return silhouette_avg_list
 
 if __name__ == "__main__":
     method_name = "word2vec-embedding"
@@ -41,11 +51,15 @@ if __name__ == "__main__":
     print('--- start K-means clustering ---')
     
     # Use multiprocessing to process kmean in parallel
-    k_list = range(10, 111, 10)
+    k_list = range(25, 36)
     print('Processing K-means clustering...')
     with Pool(parallel_num) as pool:
-        distortions = pool.starmap(calculate_distortion, zip(repeat(X), k_list))
+        k_instances = pool.starmap(process_kmeans, zip(repeat(X), k_list))
     print('Done')
+    
+    distortions=[k.get_total_wce() for k in k_instances]
+    
+    silhouette_scores = calculate_silhouette(X,k_instances)
 
     # Plot the elbow graph
     plt.plot(k_list, distortions, marker='o')
@@ -53,19 +67,42 @@ if __name__ == "__main__":
     plt.ylabel('Distortion')
     plt.title('Elbow Method for Optimal k')
     plt.savefig(f"output/k-means/Elbow Method_{method_name}.png")
-
+    
+    # Plot the silhouette graph
+    plt.figure()
+    plt.plot(k_list, silhouette_scores, marker='o', label='Silhouette Score')
+    plt.xlabel('Number of clusters (k)')
+    plt.ylabel('Silhouette Score')
+    plt.title('Silhouette Method for Optimal k')
+    plt.legend()
+    plt.savefig(f"output/k-means/Silhouette Method_{method_name}.png")
+    
     # Find the optimal k based on the elbow point
-    num_clusters = k_list[np.argmin(distortions)]
-    print(f"The optimal number of clusters (k) is: {num_clusters}")
+    num_clusters_elbow = k_list[np.argmin(distortions)]
+    print(f"The optimal number of clusters (k) based on the elbow method is: {num_clusters_elbow}")
+
+    # Find the optimal k based on the silhouette method
+    num_clusters_silhouette = k_list[np.argmax(silhouette_scores)]
+    print(f"The optimal number of clusters (k) based on the silhouette method is: {num_clusters_silhouette}")
     
     # Perform k-means clustering with the optimal k
-    kmeans_instance = process_kmeans(X, num_clusters)
-    with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_k{num_clusters}.pickle","wb") as f:
-        pickle.dump(kmeans_instance, f)
-    kmeans_clusters = kmeans_instance.get_clusters()
+    kmeans_instance_elbow = process_kmeans(X, num_clusters_elbow)
+    with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_elbow_k{num_clusters_elbow}.pickle","wb") as f:
+        pickle.dump(kmeans_instance_elbow, f)
+    kmeans_clusters_elbow= kmeans_instance_elbow.get_clusters()
+    
+    # Perform k-means clustering with the optimal k from the silhouette method
+    kmeans_instance_silhouette = process_kmeans(X, num_clusters_silhouette)
+    with open(f"output/k-means/kmeans_instance/{method_name}_kmeans_instance_silhouette_k{num_clusters_silhouette}.pickle", "wb") as f:
+        pickle.dump(kmeans_instance_silhouette, f)
+    kmeans_clusters_silhouette = kmeans_instance_silhouette.get_clusters()
 
     # number of paper in cluster
-    print('K-means cluster')
-    for i in range(num_clusters):
-        print(f"Cluster #{i+1}: {len(kmeans_clusters[i])}")
+    print('K-means cluster_elbow')
+    for i in range(num_clusters_elbow):
+        print(f"Cluster #{i+1}: {len(kmeans_clusters_elbow[i])}")
 
+    # number of paper in cluster
+    print('K-means cluster_silhouette')
+    for i in range(num_clusters_silhouette):
+        print(f"Cluster #{i+1}: {len(kmeans_clusters_silhouette[i])}")
