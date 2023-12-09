@@ -29,11 +29,11 @@
 
 ### Team member
 
-| Dept     | Name          |
-| -------- | ------------- |
-| software | Kyunghyun Min |
-| software | Jongho Baik   |
-| software | Junseo Lee    |
+| Dept     | Name          | Github|
+| -------- | ------------- |-------|
+| software | Kyunghyun Min <img src="https://avatars.githubusercontent.com/u/16879600?v=4" width="50">|[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/enjoeyland)|
+| software | Jongho    Baik <img src="https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78012131/e9bf5d98-277a-492f-a6f5-924f41c8ce67" width="50">|[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/JongHoB)|
+| software | Junseo    Lee <img src="https://avatars.githubusercontent.com/u/78635277?v=4" width="50">   |[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/LucPle)|
 
 ## Project structure
 
