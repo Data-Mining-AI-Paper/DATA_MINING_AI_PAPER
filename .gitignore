@@ -2,3 +2,5 @@ GITHUB*
 TEST*
 .ipynb_*
 __pycache__
+.DS_Store
+
