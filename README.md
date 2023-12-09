@@ -4,11 +4,11 @@
 
 ## 🚩 Table of Contents
 
-- [Project summary](#-Project-summary)
-- [Project structure](#-Project-structure)
-- [Requirements](#-Requirements)
-- [Methods](#-Methods)
-- [Results](#-Results)
+- [Project summary](#project-summary)
+- [Project structure](#project-structure)
+- [Requirements](#requirements)
+- [Methods](#methods)
+- [Results](#results)
 - [Browser Support](#-browser-support)
 - [Pull Request Steps](#-pull-request-steps)
 - [Contributing](#-contributing)
