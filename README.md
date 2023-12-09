@@ -70,8 +70,8 @@
 
 - ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white) Compute Engine VM N1 instance
   - Custom configuration:
-    - Intel® Xeon® E5-2696V3 10vCPU
-    - Ubuntu 23.10
+    - ![Intel® Xeon® E5-2696V3](https://img.shields.io/badge/Intel®-Xeon®_E5_2696V3-0071C5?style=for-the-badge&logo=intel&logoColor=white) 10vCPU
+    - ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) 23.10
     - 65GB RAM
     - 200GB storage
 
@@ -100,9 +100,9 @@ To ensure consistency in package versions, the following additional libraries ar
 - ![Matplotlib](https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black): 3.5.2
 - ![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white): 1.23.1
 - ![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white): 1.3.0
-- nltk: 3.8.1
-- pyclustering: 0.10.1.2
-- wordcloud: 1.9.2
+- ![nltk](https://img.shields.io/badge/nltk-blue): 3.8.1
+- ![pyclustering](https://img.shields.io/badge/pyclustering-purple): 0.10.1.2
+- ![wordcloud](https://img.shields.io/badge/wordcloud-black): 1.9.2
 
 ## 🔨 Method
 
