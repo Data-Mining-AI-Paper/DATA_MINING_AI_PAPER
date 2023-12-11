@@ -144,14 +144,16 @@ To ensure consistency in package versions, the following additional libraries ar
 
 - Purpose: Determination of diverse research areas through cluster analysis.
 - Result: Identified research themes using K-means++ clustering based on specific keywords.
-  ![Alt text](image-3.png)
+
+![Alt text](image-3.png)
 
 ### Research Topic Trend
 
 - Purpose: Understanding evolving trends in AI research topics based on cluster trends.
 - Result: Analyzed trends in research topics by tracking changes in cluster proportions over years.
 - Through the image below, it can be seen that the 'model expressionism' cluster, one of the modern trends of AI, appeared at the end of 2010.
-  ![Alt text](image-2.png)
+
+![Alt text](image-2.png)
 
 ### Keyword Trend Analysis
 
@@ -168,7 +170,8 @@ To ensure consistency in package versions, the following additional libraries ar
 - Purpose: Comparative analysis of keyword significance across different years.
 - Result: Generated visual word cloud images displaying important keywords for each year.
 - This visual exploration provides insights into the evolving importance of specific words or keywords over time.
-  ![Alt text](image-5.png)
+
+![Alt text](image-5.png)
 
 ## 📜 License
 
