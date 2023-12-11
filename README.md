@@ -11,7 +11,7 @@
 - [Results](#-results)
 - [License](#-license)
 
-## 📃 Project summary
+## 📝 Project summary
 
 ### Analysis Challenges in NLP Papers: BOLT - Beyond Obstacles, Leap Together
 
@@ -24,13 +24,13 @@
 
 ### Team member
 
-| Dept     | Name          | Github|
-| -------- | ------------- |-------|
-| software | Kyunghyun Min <img src="https://avatars.githubusercontent.com/u/16879600?v=4" width="50">|[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/enjoeyland)|
-| software | Jongho    Baik <img src="https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78012131/e9bf5d98-277a-492f-a6f5-924f41c8ce67" width="50">|[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/JongHoB)|
-| software | Junseo    Lee <img src="https://avatars.githubusercontent.com/u/78635277?v=4" width="50">   |[<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/LucPle)|
+| Dept     | Icon                                                                                                                                     | Name          | Github                                                                                                                                   |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| software | <img src="https://avatars.githubusercontent.com/u/16879600?v=4" width="50">                                                              | Kyunghyun Min | [<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/enjoeyland) |
+| software | <img src="https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78012131/e9bf5d98-277a-492f-a6f5-924f41c8ce67" width="50"> | Jongho Baik   | [<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/JongHoB)    |
+| software | <img src="https://avatars.githubusercontent.com/u/78635277?v=4" width="50">                                                              | Junseo Lee    | [<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white"/>](https://github.com/LucPle)     |
 
-## 📈 Project structure
+## 🏗️ Project structure
 
 ### Directory
 
@@ -64,7 +64,7 @@
 - `5. wordcloud_by_year.py`: Provide important keywords as wordclouds by year.
 - `6. topic_trend.py`: Labeling the clusters made in `3. k-mean_clustering_word2vect.py`.
 
-## 🔑 Requirements
+## ⚙️ Requirements
 
 ### Hardware Configuration
 
@@ -77,7 +77,7 @@
 
 ### Software Configuration
 
-- ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) 3.11.5 
+- ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) 3.11.5
 - ![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
   - IPython: 8.15.0
   - ipykernel: 6.25.0
@@ -104,9 +104,71 @@ To ensure consistency in package versions, the following additional libraries ar
 - ![pyclustering](https://img.shields.io/badge/pyclustering-purple): 0.10.1.2
 - ![wordcloud](https://img.shields.io/badge/wordcloud-black): 1.9.2
 
-## 🔨 Method
+## 🔨 Methods
 
-## 🎫 Result
+### Crawling ACL Paper Data
+
+- Approach: Initially utilized DBLP, but switched to direct use of the ACL site.
+- Extraction: Retrieved papers via DOIs, totaling 10,293.
+- API Usage: Employed SEMANTIC SCHOLAR API in chunks of 500 DOIs, later transitioning to individual
+
+### Data Preprocessing
+
+- Removing Poor Abstracts: Excluded abstracts <100 characters (13 instances).
+- Selecting Central Analytic Fields: Focused on 'title', 'abstract', and 'year'.
+- Issues for TF-IDF Processing: Removed URLs, non-alphabetic characters from abstracts, and implemented lemmatization.
+
+### TF-IDF
+
+- Processing: Utilized TfidfVectorizer library, resulting in a sparse matrix of 12,732 papers and 17,054 features.
+- Thresholding: Chose a threshold of 0.17 to represent approximately the top 15% of TF-IDF values.
+
+### K-Means Clustering
+
+- Embedding and Clustering: Used Word2Vec for embedding and weighted average with TF-IDF values for paper representation.
+- Optimal K Value: Determined k = 36 using elbow and silhouette methods after challenges with high computational volume.
+
+### Keyword Trend Analysis
+
+- Calculation: Extracted important words per year via TF-IDF, weighted by the number of papers, and produced trends over time, compensating for small TF-IDF values.
+- Comparison: compared Keyword Trend Analysis with Google Trends.
+
+### Word Cloud by Year
+
+- Extraction and Visualization: Extracted top 20 words per year using TF-IDF, setting a threshold of 0.17.
+- Creating wordclouds: created word clouds based on the sum of important words for each year.
+
+## 📊 Results
+
+### Cluster Analysis
+
+- Purpose: Determination of diverse research areas through cluster analysis.
+- Result: Identified research themes using K-means++ clustering based on specific keywords.
+  ![Alt text](image-3.png)
+
+### Research Topic Trend
+
+- Purpose: Understanding evolving trends in AI research topics based on cluster trends.
+- Result: Analyzed trends in research topics by tracking changes in cluster proportions over years.
+- Through the image below, it can be seen that the 'model expressionism' cluster, one of the modern trends of AI, appeared at the end of 2010.
+  ![Alt text](image-2.png)
+
+### Keyword Trend Analysis
+
+- Purpose: Validation of trend analysis reliability using the researched data.
+- Result: Analyzed annual keyword trends using TF-IDF values and compared with Google Trends data.
+- We conducted a comparative analysis encompassing five keywords
+  > 'derivation,' 'multimodal,' 'prompt,' 'segmentation,' and 'semantic.'
+- Since each graph shows a similar shape, it can be confirmed that trend analysis is performed well.
+
+![Alt text](image-4.png)
+
+### Word Cloud by Year
+
+- Purpose: Comparative analysis of keyword significance across different years.
+- Result: Generated visual word cloud images displaying important keywords for each year.
+- This visual exploration provides insights into the evolving importance of specific words or keywords over time.
+  ![Alt text](image-5.png)
 
 ## 📜 License
 
