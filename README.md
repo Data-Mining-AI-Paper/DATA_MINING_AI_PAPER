@@ -145,15 +145,16 @@ To ensure consistency in package versions, the following additional libraries ar
 - Purpose: Determination of diverse research areas through cluster analysis.
 - Result: Identified research themes using K-means++ clustering based on specific keywords.
 
-![Alt text](image-3.png)
+![image-3](https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78635277/f23f5c4f-1f69-4e0f-952d-739de2bccf46)
+
 
 ### Research Topic Trend
 
 - Purpose: Understanding evolving trends in AI research topics based on cluster trends.
 - Result: Analyzed trends in research topics by tracking changes in cluster proportions over years.
 - Through the image below, it can be seen that the 'model expressionism' cluster, one of the modern trends of AI, appeared at the end of 2010.
-
-![Alt text](image-2.png)
+  
+![image](https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78635277/3fdd69b1-2e4b-46e9-a53e-1c315689678f)
 
 ### Keyword Trend Analysis
 
@@ -163,7 +164,7 @@ To ensure consistency in package versions, the following additional libraries ar
   > 'derivation,' 'multimodal,' 'prompt,' 'segmentation,' and 'semantic.'
 - Since each graph shows a similar shape, it can be confirmed that trend analysis is performed well.
 
-![Alt text](image-4.png)
+![image-4](https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78635277/384ff382-6511-45b9-b1e1-8305ccd4c178)
 
 ### Word Cloud by Year
 
@@ -171,7 +172,7 @@ To ensure consistency in package versions, the following additional libraries ar
 - Result: Generated visual word cloud images displaying important keywords for each year.
 - This visual exploration provides insights into the evolving importance of specific words or keywords over time.
 
-![Alt text](image-5.png)
+![image-5](https://github.com/Data-Mining-AI-Paper/DATA_MINING_AI_PAPER/assets/78635277/5cd3928b-7319-40c0-8770-c8627b06a193)
 
 ## 📜 License
 
