@@ -2,6 +2,8 @@
 
 > 2023 FALL Data Mining(SCE3313, F074) Project
 
+> [**REPORT PAPER**](https://drive.google.com/file/d/1Rog0-dpde193dWxtnwMShh-e_b9i-Xyn/view?usp=sharing) - For Details, Read the Paper.
+
 ## 🚩 Table of Contents
 
 - [Project summary](#-project-summary)
